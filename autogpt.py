@@ -42,4 +42,4 @@ agent = AutoGPT.from_llm_and_tools(
 # Set verbose to be true
 agent.chain.verbose = True
 
-agent.run(["write a weather report for SF today"])
+agent.run(["write an article on structuring a nextjs project with typescript, trpc, prisma, cockroach db, nextauth and chakra ui"])

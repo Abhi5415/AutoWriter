@@ -1,4 +1,0 @@
-Weather Report for San Francisco on Mon Jun 5 2023:
-
-Current temperature: 57 °F
-Conditions: Sunny
