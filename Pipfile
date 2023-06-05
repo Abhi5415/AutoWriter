@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+faiss-cpu = "*"
+langchain = "*"
+python-dotenv = "*"
+urllib3 = "<=1.26.15"
+google-search-results = "*"
+openai = "*"
+tiktoken = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.11"
