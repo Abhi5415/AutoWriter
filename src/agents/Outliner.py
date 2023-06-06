@@ -22,7 +22,7 @@ from langchain.tools.base import BaseTool
 from langchain.tools.human.tool import HumanInputRun
 from langchain.vectorstores.base import VectorStoreRetriever
 from langchain.schema import BaseMessage, HumanMessage, SystemMessage
-from Creator import StageReturnType
+from utils.StageReturnType import StageReturnType, Stage
 from BaseContent import BaseContent, FeedbackInput, OutlineInput
 from prompts.OutlinerPrompt import OutlinerPrompt
 from langchain.utilities import SerpAPIWrapper
@@ -78,7 +78,7 @@ class Outliner:
             ),
             Tool(
                 name="write_outline",
-                description="write the outline",
+                description="use this command to save your outline to a file",
                 func=content.writeOutline,
                 args_schema=OutlineInput
             )
@@ -108,6 +108,7 @@ class Outliner:
         loop_count = 0
         while True:
             print(str(content))
+            content.saveToFile()
 
             # Discontinue if continuous limit is reached
             loop_count += 1
@@ -133,14 +134,14 @@ class Outliner:
                 return StageReturnType(
                     content=content,
                     feedback=None,
-                    stage="WRITE"
+                    stage=Stage.WRITE
                 )
 
             if action.name == RESEARCH_TOOL_NAME:
                 return StageReturnType(
                     content=content,
                     feedback=None,
-                    stage="RESEARCH"
+                    stage=Stage.RESEARCH
                 )
 
             if action.name in tools:
@@ -168,7 +169,6 @@ class Outliner:
             memory_to_add = (
                 f"Assistant Reply: {assistant_reply} " f"\nResult: {result} "
             )
-            content.saveToFile()
             self.memory.add_documents([Document(page_content=memory_to_add)])
             self.full_message_history.append(SystemMessage(content=result))
 

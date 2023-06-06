@@ -30,7 +30,7 @@ from typing import Any, Callable, List, Union
 
 from pydantic import BaseModel
 
-from langchain.experimental.autonomous_agents.autogpt.prompt_generator import get_prompt
+from prompts.PromptGenerator import get_prompt
 from langchain.prompts.chat import (
     BaseChatPromptTemplate,
 )
@@ -38,7 +38,7 @@ from langchain.schema import BaseMessage, HumanMessage, SystemMessage
 from langchain.tools.base import BaseTool
 from langchain.vectorstores.base import VectorStoreRetriever
 
-from Creator import StageReturnType
+from utils.StageReturnType import StageReturnType
 from BaseContent import BaseContent
 
 

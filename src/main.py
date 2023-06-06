@@ -46,7 +46,7 @@ creator = Creator(
     outliner=outliner,
 )
 
-creator.run()
+creator.run(baseContent)
 
 
 

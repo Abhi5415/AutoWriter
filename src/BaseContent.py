@@ -4,7 +4,7 @@ import pickle
 from pydantic import BaseModel, Field
 
 class OutlineInput(BaseModel):
-    outline: str = Field(description="The outline you want to use for your content")
+    outline: str = Field(description="The contents of the outline")
 
 class QuestionInput(BaseModel):
     questions: List[str] = Field(description="A list of questions you want to answer in your research")
@@ -36,6 +36,9 @@ class BaseContent:
 
     def writeOutline(self, outline: str) -> None:
         self.outline = outline
+        if outline == "":
+            return "please include the content of your outline in the input"
+        return "success"
 
     # when a question is added to the content we add it to the todo list
     def addQuestions(self, questions: List[str]) -> None:
@@ -68,7 +71,7 @@ class BaseContent:
         if not os.path.exists(self.filename):
             os.makedirs(self.filename)
             
-        if self.outline != "" and os.path.exists(f"{self.filename}/outline.txt"):
+        if self.outline != "":
             with open(f"{self.filename}/outline.txt", "w") as f:
                 f.write(self.outline)
 

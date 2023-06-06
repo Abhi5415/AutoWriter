@@ -38,19 +38,17 @@ from langchain.schema import BaseMessage, HumanMessage, SystemMessage
 from langchain.tools.base import BaseTool
 from langchain.vectorstores.base import VectorStoreRetriever
 
-from Creator import StageReturnType
+from utils.StageReturnType import StageReturnType, Stage
 from BaseContent import BaseContent
 from prompts.ResearcherPrompt import ResearcherPrompt
-from Creator import StageReturnType
+from utils.StageReturnType import StageReturnType
 
 from langchain.utilities import SerpAPIWrapper
 from langchain.agents import Tool
-from BaseContent import BaseContent
-from agents.Researcher import Researcher
+from BaseContent import BaseContent, QuestionInput, ResearchInput
 from typing import List, Optional
 from langchain.tools import StructuredTool
 from langchain.tools.human.tool import HumanInputRun
-from Creator import QuestionInput, ResearchInput
 
 class Researcher:
     """Agent class for interacting with Auto-GPT."""
@@ -132,6 +130,8 @@ class Researcher:
         loop_count = 0
         while True:
             print(str(content))
+            content.saveToFile()
+            
 
             # Discontinue if continuous limit is reached
             loop_count += 1
@@ -157,7 +157,7 @@ class Researcher:
                 return StageReturnType(
                     content=content,
                     feedback=None,
-                    stage="OUTLINE"
+                    stage=Stage.OUTLINE,
                 )
 
             if action.name in tools:
@@ -185,7 +185,6 @@ class Researcher:
             memory_to_add = (
                 f"Assistant Reply: {assistant_reply} " f"\nResult: {result} "
             )
-            content.saveToFile()
             self.memory.add_documents([Document(page_content=memory_to_add)])
             self.full_message_history.append(SystemMessage(content=result))
 

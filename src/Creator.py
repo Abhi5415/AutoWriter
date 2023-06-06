@@ -3,7 +3,7 @@ from typing import Union
 from BaseContent import BaseContent
 from agents.Outliner import Outliner
 from agents.Researcher import Researcher
-from utils.StageReturnType import Stage, StageReturnType
+from utils.StageReturnType import Stage
 
 
 class Creator:
@@ -15,7 +15,7 @@ class Creator:
 
     def run(self, content: BaseContent) -> None:
 
-        stage = Stage.RESEARCH
+        stage = Stage.OUTLINE
         feedback = None
 
         while (stage != Stage.PUBLISH):
@@ -29,6 +29,7 @@ class Creator:
 
             elif (stage == Stage.OUTLINE):
                 res = self.outliner.run(content, feedback)
+                feedback = res.feedback
                 stage = res.stage
                 content = res.content
 
@@ -45,4 +46,5 @@ class Creator:
                 # reviewReturnType = self.reviewer.run(content, feedback)
                 # stage = reviewReturnType.stage
                 # content = reviewReturnType.content
+            
 
