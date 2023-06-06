@@ -1,6 +1,20 @@
 from typing import List
 import os
 import pickle
+from pydantic import BaseModel, Field
+
+class OutlineInput(BaseModel):
+    outline: str = Field(description="The outline you want to use for your content")
+
+class QuestionInput(BaseModel):
+    questions: List[str] = Field(description="A list of questions you want to answer in your research")
+
+class ResearchInput(BaseModel):
+    question: str = Field(description="The question you are answering from the todo list")
+    answer: str = Field(description="The answer to the question")
+
+class FeedbackInput(BaseModel):
+    feedback: str = Field(description="The feedback you want to give on why the document is incomplete for your stage")
 
 class BaseContent: 
     filename = ""
@@ -19,6 +33,9 @@ class BaseContent:
         self.audience = audience
         self.goals = goals
         self.tone = tone
+
+    def writeOutline(self, outline: str) -> None:
+        self.outline = outline
 
     # when a question is added to the content we add it to the todo list
     def addQuestions(self, questions: List[str]) -> None:
@@ -50,6 +67,10 @@ class BaseContent:
         # if a directory called filename doesn't exist, create it
         if not os.path.exists(self.filename):
             os.makedirs(self.filename)
+            
+        if self.outline != "" and os.path.exists(f"{self.filename}/outline.txt"):
+            with open(f"{self.filename}/outline.txt", "w") as f:
+                f.write(self.outline)
 
         # save the todo questions to a file
         with open(f"{self.filename}/todo_questions.txt", "w") as f:

@@ -1,9 +1,6 @@
 from __future__ import annotations
-
-from typing import List, Optional
-
+from typing import List, Optional, Union
 from pydantic import ValidationError
-
 from langchain.chains.llm import LLMChain
 from langchain.chat_models.base import BaseChatModel
 from langchain.experimental.autonomous_agents.autogpt.output_parser import (
@@ -24,27 +21,17 @@ from langchain.schema import (
 from langchain.tools.base import BaseTool
 from langchain.tools.human.tool import HumanInputRun
 from langchain.vectorstores.base import VectorStoreRetriever
-
-import time
-from typing import Any, Callable, List, Union
-
-from pydantic import BaseModel
-
-from langchain.experimental.autonomous_agents.autogpt.prompt_generator import get_prompt
-from langchain.prompts.chat import (
-    BaseChatPromptTemplate,
-)
 from langchain.schema import BaseMessage, HumanMessage, SystemMessage
-from langchain.tools.base import BaseTool
-from langchain.vectorstores.base import VectorStoreRetriever
-
-from Creator import StageReturnType, FeedbackInput
-from BaseContent import BaseContent
+from Creator import StageReturnType
+from BaseContent import BaseContent, FeedbackInput, OutlineInput
 from prompts.OutlinerPrompt import OutlinerPrompt
+from langchain.utilities import SerpAPIWrapper
+
+
 
 from langchain.agents import Tool
 
-
+RESEARCH_TOOL_NAME = "Research"
 
 
 class Outliner:
@@ -70,18 +57,32 @@ class Outliner:
     def from_llm_and_tools(
         cls,
         memory: VectorStoreRetriever,
-        tools: List[BaseTool],
+        content: BaseContent,
         llm: BaseChatModel,
         output_parser: Optional[BaseAutoGPTOutputParser] = None,
     ) -> Outliner:
-        tools.append(
+        
+        search = SerpAPIWrapper()
+        tools = [
             Tool(
-                name="Research",
-                description="complete further research on a topic",
+                name = "search",
+                func=search.run,
+                description="useful for when you need to answer questions about current events. You should ask targeted questions"
+            ),
+            HumanInputRun(),
+            Tool(
+                name=RESEARCH_TOOL_NAME,
+                description="request further research on a topic if needed",
                 func=lambda x: x,
-                args_schema= FeedbackInput
+                args_schema=FeedbackInput
+            ),
+            Tool(
+                name="write_outline",
+                description="write the outline",
+                func=content.writeOutline,
+                args_schema=OutlineInput
             )
-        )
+        ]
 
         prompt = OutlinerPrompt(
             tools=tools,
@@ -97,6 +98,7 @@ class Outliner:
         )
 
     def run(self, content: BaseContent, feedback: Union[str, None]) -> StageReturnType:
+        print("Running Outliner")
         user_input = (
             "Determine which next command to use, "
             "and respond using the format specified above:"
@@ -128,7 +130,19 @@ class Outliner:
             action = self.output_parser.parse(assistant_reply)
             tools = {t.name: t for t in self.tools}
             if action.name == FINISH_NAME:
-                return action.args["response"]
+                return StageReturnType(
+                    content=content,
+                    feedback=None,
+                    stage="WRITE"
+                )
+
+            if action.name == RESEARCH_TOOL_NAME:
+                return StageReturnType(
+                    content=content,
+                    feedback=None,
+                    stage="RESEARCH"
+                )
+
             if action.name in tools:
                 tool = tools[action.name]
                 try:

@@ -43,6 +43,14 @@ from BaseContent import BaseContent
 from prompts.ResearcherPrompt import ResearcherPrompt
 from Creator import StageReturnType
 
+from langchain.utilities import SerpAPIWrapper
+from langchain.agents import Tool
+from BaseContent import BaseContent
+from agents.Researcher import Researcher
+from typing import List, Optional
+from langchain.tools import StructuredTool
+from langchain.tools.human.tool import HumanInputRun
+from Creator import QuestionInput, ResearchInput
 
 class Researcher:
     """Agent class for interacting with Auto-GPT."""
@@ -67,10 +75,38 @@ class Researcher:
     def from_llm_and_tools(
         cls,
         memory: VectorStoreRetriever,
-        tools: List[BaseTool],
+        content: BaseContent,
         llm: BaseChatModel,
         output_parser: Optional[BaseAutoGPTOutputParser] = None,
     ) -> Researcher:
+        search = SerpAPIWrapper()
+        tools = [
+            Tool(
+                name = "search",
+                func=search.run,
+                description="useful for when you need to answer questions about current events. You should ask targeted questions"
+            ),
+            Tool(
+                name = "add_question",
+                func = content.addQuestions,
+                description = "add research questions to your todo list of questions to answer",
+                args_schema = QuestionInput
+            ),
+            StructuredTool.from_function(
+                name = "add_research_answer",
+                func = content.addResearch,
+                description = "add an answer to a question. Make sure the answer actually answers the question. Otherwise try another search. The question should be in your todo list. If its not, add it first",
+                args_schema = ResearchInput
+            ),
+            Tool(
+                name = "remove_research_question",
+                func = content.removeQuestion,
+                description = "remove a research question and its answer from your researched questions because you no longer need it",
+            ),
+            HumanInputRun()
+        ]
+
+
         prompt = ResearcherPrompt(
             tools=tools,
             input_variables=["content", "feedback", "messages", "memory", "user_input"],
@@ -85,6 +121,8 @@ class Researcher:
         )
 
     def run(self, content: BaseContent, feedback: Union[str, None]) -> StageReturnType:
+        print("Running Researcher")
+        
         user_input = (
             "Determine which next command to use, "
             "and respond using the format specified above:"
@@ -121,7 +159,7 @@ class Researcher:
                     feedback=None,
                     stage="OUTLINE"
                 )
-            
+
             if action.name in tools:
                 tool = tools[action.name]
                 try:

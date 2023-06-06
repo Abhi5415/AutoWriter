@@ -49,7 +49,7 @@ class OutlinerPrompt(BaseChatPromptTemplate, BaseModel):
         full_prompt += f"The audience of the article are {content.audience}\n"
         full_prompt += f"The article's tone should be {content.tone}\n"
         full_prompt += f"The article's length should be about 600 words\n"
-        full_prompt += f"You are only writing an outline for the article based on the Research. Do not attempt to write the article. Simply write the outline in a logical and concise manner.\n"
+        full_prompt += f"You are only writing an outline for the article based on the research. Do not attempt to write the article. Simply write the outline in a logical and concise manner.\n"
         full_prompt += f"Do not 'finish' until the human has given you approval through their feedback.\n"
         full_prompt += f"The benefits of a technology are often shown by comparing it to its alternatives. Show the alternatives and contrast the technologies discussed in the article to show their benefits.\n"
         full_prompt += "\n\n"
@@ -68,10 +68,9 @@ class OutlinerPrompt(BaseChatPromptTemplate, BaseModel):
 
         # directives
         full_prompt += """
-You should ask questions and add them to your research list. 
-You should ask the human for feedback if you're unclear on what topics to research or need some guidance.
-You're finished when you've answered all the questions on your research list and have atleast 5 question and answer results.
-You should also receive positive feedback from the human before you finish.
+You should ask the human for feedback if you're unclear on what the article should be about.
+You're finished when you've written a concise outline and have received positive feedback.
+You should be critical and skeptical of the research given to you. If you feel it is insufficient or contains an error, provide feedback with the "Research" tool.
         """
 
         full_prompt += f"\n\n{get_prompt(self.tools)}"

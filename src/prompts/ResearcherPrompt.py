@@ -63,7 +63,7 @@ class ResearcherPrompt(BaseChatPromptTemplate, BaseModel):
         # goals
         full_prompt += f"The goals of the article are as follows: {content.goals}\n"
         full_prompt += f"The audience of the article are {content.audience}\n"
-        full_prompt += f"The article's title should be something like {content.title}\n"
+        full_prompt += f"The article's topic should be {content.title}\n"
         full_prompt += f"The article's tone should be {content.tone}\n"
         full_prompt += f"The article's length should be about 600 words\n"
 
@@ -86,10 +86,11 @@ class ResearcherPrompt(BaseChatPromptTemplate, BaseModel):
             full_prompt += f"You've received the following feedback on your work so far: {feedback}\n\n"
 
         # directives
-        full_prompt += """You should ask questions and add them to your research list. 
-        You should ask the human for feedback if you're unclear on what topics to research or need some guidance.
-        You're finished when you've answered all the questions on your research list and have atleast 5 question and answer results.
-        You should also receive positive feedback from the human before you finish.
+        full_prompt += """
+You should ask questions and add them to your research list. 
+You should ask the human for feedback if you're unclear on what topics to research or need some guidance.
+You're finished when you've answered all the questions on your research list and have atleast 5 question and answer results.
+You should also receive positive feedback from the human before you finish.
         """
 
         full_prompt += f"\n\n{get_prompt(self.tools)}"
