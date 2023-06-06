@@ -3,19 +3,20 @@ from typing import Union
 from BaseContent import BaseContent
 from agents.Outliner import Outliner
 from agents.Researcher import Researcher
+from agents.Writer import Writer
 from utils.StageReturnType import Stage
 
 
 class Creator:
-    def __init__(self, researcher: Researcher, outliner: Outliner) -> None:
+    def __init__(self, researcher: Researcher, outliner: Outliner, writer: Writer) -> None:
         self.researcher = researcher
         self.outliner = outliner
-        # self.blogWriter = blogWriter
+        self.writer = writer
         # self.reviewer = reviewer
 
     def run(self, content: BaseContent) -> None:
 
-        stage = Stage.OUTLINE
+        stage = Stage.WRITE
         feedback = None
 
         while (stage != Stage.PUBLISH):
@@ -34,11 +35,10 @@ class Creator:
                 content = res.content
 
             elif (stage == Stage.WRITE):
-                print("Done for now")
-                return 
-                # writeReturnType = self.blogWriter.run(content, feedback)
-                # stage = writeReturnType.stage
-                # content = writeReturnType.content
+                res = self.writer.run(content, feedback)
+                feedback = res.feedback
+                stage = res.stage
+                content = res.content
 
             elif (stage == Stage.REVIEW):
                 print("Done for now")

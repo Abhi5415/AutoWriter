@@ -7,9 +7,11 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.chat_models import ChatOpenAI
 from agents.Researcher import Researcher
 from agents.Outliner import Outliner
+from agents.Writer import Writer
 import faiss
 from BaseContent import BaseContent
 from Creator import Creator
+
 
 from dotenv import load_dotenv
 
@@ -41,14 +43,17 @@ outliner = Outliner.from_llm_and_tools(
 )
 outliner.chain.verbose = True
 
+writer = Writer.from_llm_and_tools(
+    llm=ChatOpenAI(model="gpt-4"),
+    content=baseContent,
+    memory=FAISS(embeddings_model.embed_query, faiss.IndexFlatL2(embedding_size), InMemoryDocstore({}), {}).as_retriever(),
+)
+writer.chain.verbose = True
+
 creator = Creator(
     researcher=researcher,
     outliner=outliner,
+    writer=writer,
 )
 
 creator.run(baseContent)
-
-
-
-
-# Set verbose to be true

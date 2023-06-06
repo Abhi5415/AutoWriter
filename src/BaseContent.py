@@ -3,8 +3,11 @@ import os
 import pickle
 from pydantic import BaseModel, Field
 
+class ArticleInput(BaseModel):
+    article: str = Field(description="The contents of the article in markdown format")
+
 class OutlineInput(BaseModel):
-    outline: str = Field(description="The contents of the outline")
+    outline: str = Field(description="The contents of the outline, in markdown format. Cannot be empty")
 
 class QuestionInput(BaseModel):
     questions: List[str] = Field(description="A list of questions you want to answer in your research")
@@ -21,6 +24,7 @@ class BaseContent:
     title = "" # title of the content -> used to name the files and the content
     outline = "" # outline for the content
     content_type = "" # type of content (article, blog post, etc)
+    content = ""
     todo_questions = set() # list of questions that need to be answered
     research = {} # pairs of (question, answer)
     audience = "" # who the content is for
@@ -33,6 +37,12 @@ class BaseContent:
         self.audience = audience
         self.goals = goals
         self.tone = tone
+
+    def writeArticle(self, article: str) -> None:
+        self.content = article
+        if article == "":
+            return "please include the content of your article in the input"
+        return "success"
 
     def writeOutline(self, outline: str) -> None:
         self.outline = outline
@@ -74,6 +84,10 @@ class BaseContent:
         if self.outline != "":
             with open(f"{self.filename}/outline.txt", "w") as f:
                 f.write(self.outline)
+                
+        if self.content != "":
+            with open(f"{self.filename}/article.md", "w") as f:
+                f.write(self.content)
 
         # save the todo questions to a file
         with open(f"{self.filename}/todo_questions.txt", "w") as f:
