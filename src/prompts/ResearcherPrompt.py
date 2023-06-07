@@ -69,10 +69,11 @@ class ResearcherPrompt(BaseChatPromptTemplate, BaseModel):
 
 
         # todo research questions
-        full_prompt += f"You have yet to conduct research on the following questions:\n"
-        for i, question in enumerate(content.todo_questions):
-            full_prompt += f"{i}. {question}\n"
-        full_prompt += "\n\n"
+        if len(content.todo_questions) > 0:
+          full_prompt += f"You have yet to conduct research on the following questions:\n"
+          for i, question in enumerate(content.todo_questions):
+              full_prompt += f"{i}. {question}\n"
+          full_prompt += "\n\n"
 
         # research results
         if len(content.research) > 0:

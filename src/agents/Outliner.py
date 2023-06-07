@@ -112,7 +112,7 @@ class Outliner:
 
             # Discontinue if continuous limit is reached
             loop_count += 1
-
+            
             # Send message to AI, get response
             assistant_reply = self.chain.run(
                 content=content,

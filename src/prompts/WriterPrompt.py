@@ -31,9 +31,6 @@ class WriterPrompt(BaseChatPromptTemplate, BaseModel):
 
     def construct_full_prompt(self, content: BaseContent, feedback: Union[str, None]) -> str:
         prompt_start = (
-            "Your decisions must always be made independently "
-            "Play to your strengths as an LLM and pursue simple "
-            "strategies with no legal complications.\n"
             "If you have completed all your tasks, make sure to "
             'use the "finish" command.'
         )
@@ -44,14 +41,13 @@ class WriterPrompt(BaseChatPromptTemplate, BaseModel):
         full_prompt += f"You are responsible for turning the outline and research into a well written and clear article that will be presented as a blog post.\n"
 
         # goals
-        full_prompt += f"The article's title should be something like {content.title}\n"
+        full_prompt += f"The article's topic is: {content.title}\n"
         full_prompt += f"The goals of the article are as follows: {content.goals}\n"
         full_prompt += f"The audience of the article are {content.audience}\n"
         full_prompt += f"The article's tone should be {content.tone}\n"
         full_prompt += f"The article's length should be about 600 words\n"
-        full_prompt += f"Do not 'finish' until the human has given you positive feedback.\n"
-        full_prompt += f"The benefits of a technology are often shown by comparing it to its alternatives. Show the alternatives and contrast the technologies discussed in the article to show their benefits.\n"
         full_prompt += f"Focus on real-world examples and use cases. This is a blog post for the internet, not a technical paper.\n"
+        full_prompt += f"Include captions for images you want an unskilled human artist to draw in parenthesis like so: [draw a picture of a server interacting with a client machine] \n"
         full_prompt += "\n\n"
 
         # outline
@@ -66,20 +62,16 @@ class WriterPrompt(BaseChatPromptTemplate, BaseModel):
         full_prompt += f"If you feel this is insufficient information to write this article then request more information using the appropriate tool.\n"
         full_prompt += "\n\n"
 
-        # content
-        full_prompt += "You've written this so far. Critique yourself and improve the article:\n"
-        full_prompt += f"{content.content}\n"
-
         # feedback
         if feedback:
             full_prompt += f"You've received the following feedback on your work so far: {feedback}\n\n"
 
-        # directives
-        full_prompt += """
-You should ask the human for feedback if you're unclear on what the article should be about.
-You're finished when you've written an article and have received positive feedback.
-You should be critical and skeptical of the research and outline given to you. If you feel it is insufficient or contains an error, provide feedback with the "Outline" tool.
-        """
+#         # directives
+#         full_prompt += """
+# You should ask the human for feedback if you're unclear on what the article should be about.
+# You're finished when you've written an article and have received positive feedback.
+# You should be critical and skeptical of the research and outline given to you. If you feel it is insufficient or contains an error, provide feedback with the "Outline" tool.
+#         """
 
         full_prompt += f"\n\n{get_prompt(self.tools)}"
         return full_prompt
@@ -99,7 +91,8 @@ You should be critical and skeptical of the research and outline given to you. I
         relevant_memory_tokens = sum(
             [self.token_counter(doc) for doc in relevant_memory]
         )
-        while used_tokens + relevant_memory_tokens > 2500:
+        while used_tokens + relevant_memory_tokens > 2500 and len(relevant_memory) > 0:
+            print("here")
             relevant_memory = relevant_memory[:-1]
             relevant_memory_tokens = sum(
                 [self.token_counter(doc) for doc in relevant_memory]

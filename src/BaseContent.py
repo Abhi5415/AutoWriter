@@ -4,7 +4,7 @@ import pickle
 from pydantic import BaseModel, Field
 
 class ArticleInput(BaseModel):
-    article: str = Field(description="The contents of the article in markdown format")
+    article: str = Field(description="Write the contents of the article in markdown format here. Cannot be empty.")
 
 class OutlineInput(BaseModel):
     outline: str = Field(description="The contents of the outline, in markdown format. Cannot be empty")

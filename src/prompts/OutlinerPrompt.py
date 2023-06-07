@@ -54,15 +54,9 @@ class OutlinerPrompt(BaseChatPromptTemplate, BaseModel):
         full_prompt += f"Focus on real-world examples and use cases. This is a blog post for the internet, not a technical paper.\n"
         full_prompt += "\n\n"
 
-        # outline so far
-        if len(content.outline) > 0:
-            full_prompt += "You have written the following outline so far:\n"
-            full_prompt += content.outline
-            full_prompt += "\n\n"
-
         # research results
         if len(content.research) > 0:
-            full_prompt += "You are given the following information for the outline:\n"
+            full_prompt += "You are given the following guiding questions for the outline:\n"
             for question, answer in content.research.items():
                 full_prompt += f"Question: {question}: {answer}\n"
             full_prompt += f"If you feel this is insufficient information to write this article then request more information using the appropriate tool.\n"

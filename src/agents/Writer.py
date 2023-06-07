@@ -45,9 +45,12 @@ from utils.StageReturnType import StageReturnType
 
 from langchain.utilities import SerpAPIWrapper
 from langchain.agents import Tool
-from BaseContent import BaseContent, ArticleInput
+from BaseContent import BaseContent, ArticleInput, FeedbackInput
 from typing import List, Optional
 from langchain.tools.human.tool import HumanInputRun
+
+
+OUTLINE_NAME = "Outline"
 
 class Writer:
     """Agent class for interacting with Auto-GPT."""
@@ -84,10 +87,17 @@ class Writer:
                 description="useful for when you need to answer questions about current events. You should ask targeted questions"
             ),
             Tool(
-                name = "submit_article",
+                name = "submit",
                 func = content.writeArticle,
                 description="use this tool to save the article to a file",
                 args_schema = ArticleInput,
+                ),
+            
+            Tool(
+                name = OUTLINE_NAME,
+                func = lambda x: x,
+                description="use this tool to provide feedback on the outline and go back to the outline stage",
+                args_schema = FeedbackInput,
                 ),
             HumanInputRun()
         ]
@@ -119,8 +129,6 @@ class Writer:
         while True:
             print(str(content))
             content.saveToFile()
-            
-
             # Discontinue if continuous limit is reached
             loop_count += 1
 
@@ -145,6 +153,13 @@ class Writer:
                 return StageReturnType(
                     content=content,
                     feedback=None,
+                    stage=Stage.REVIEW,
+                )
+                
+            if action.name == OUTLINE_NAME:
+                return StageReturnType(
+                    content=content,
+                    feedback=action.args["feedback"],
                     stage=Stage.OUTLINE,
                 )
 
