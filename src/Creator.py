@@ -16,7 +16,7 @@ class Creator:
 
     def run(self, content: BaseContent) -> None:
 
-        stage = Stage.WRITE
+        stage = Stage.RESEARCH
         feedback = None
 
         while (stage != Stage.PUBLISH):
